@@ -61,9 +61,9 @@ fn main(){
     println!("\n+{:-<width$}+", "", width = 26+config.path.len());
     println!("Searching for patterns in {}", config.path);
     println!("+{:-<width$}+\n", "", width = 26+config.path.len());
-
     let patterns = &getter.patterns;
     let ignore_list = get_ignored_paths(&config.ignore);
+    let mut apperance = 0;
     for entry in WalkDir::new(&config.path){
         let entry = entry.unwrap();
         let path = entry.path();
@@ -72,9 +72,6 @@ fn main(){
         if contains {
             continue;
         }else {
-            // if path.is_file(){
-            //     println!("|=| {}", path.display());
-            // }
             if path.is_file() {
                 let file = match fs::read(path) {
                     Ok(content) => {
@@ -86,8 +83,6 @@ fn main(){
                     }
                 };
                 let mut result = find_matches(&config, &file, &patterns);
-                // break;
-                // for pretty printing
                 let max_length = patterns.iter().map(|p| p.len())
                     .max().unwrap_or(0);
                 let max_vec = result.matches.iter().map(|m| m.len())
@@ -98,12 +93,12 @@ fn main(){
                 // print vector matches
                 if result.matches.iter().map(|m| m.len()).sum::<usize>() > 0{
                     println!("\n|=| {}", path.display());
-
                     for (i, pattern) in patterns.iter().enumerate() {
                         match result.matches.get(i) {
                             Some(matches) => {
                                 if !matches.is_empty() {
-                                    println!("\t|{:width$}: {}", pattern, matches.join(", "), width = max_length);
+                                    println!("\t| {:width$} : {}", pattern, matches.join(", "), width = max_length);
+                                    apperance += result.matches[i].len();
                                 }
                             },
                             None => {},
@@ -116,9 +111,9 @@ fn main(){
                 }
             }
         }
-        // println!();
+        println!();
     }
-    println!("Done");
+    println!("Done , found {} matches", apperance);
 }
 
 fn parse_args() -> Config {

@@ -45,3 +45,4 @@ node_modules
 .pdf
 .png
 .jpg
+venv
