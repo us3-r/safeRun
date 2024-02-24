@@ -6,6 +6,11 @@ build the program using cargo
 And finally, run the .exe with desired flags <br>
 (You can also use `cargo run -- flags`)
 
+## setup
+If you wish to run this program automatically before commit you can run setup.sh<br>
+This will add a pre-commit hook that will run the program before every commit.<br>
+NOTE: you must first build the program using cargo build and add it to path<br>
+
 ## patterns.txt
 This file can be anywhere or have any name.<br>
 There are 2 ways the program will search for patterns:<br>
