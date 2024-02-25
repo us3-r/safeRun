@@ -6,6 +6,11 @@ build the program using cargo
 And finally, run the .exe with desired flags <br>
 (You can also use `cargo run -- flags`)
 
+## setup
+If you wish to run this program automatically before commit you can run setup.sh<br>
+This will add a pre-commit hook that will run the program before every commit.<br>
+NOTE: you must first build the program using cargo build and add it to path<br>
+
 ## patterns.txt
 This file can be anywhere or have any name.<br>
 There are 2 ways the program will search for patterns:<br>
@@ -17,7 +22,7 @@ There are 2 ways the program will search for patterns:<br>
    -> example: `"lucid-sonar-123415`<br>
 
 ## ignore.txt
-This file can be anywhere or have any name.<br>
+This file can be anywhere or have any name<br>
 Just write what to ignore (see ignore.txt for reference)
 
 
@@ -46,3 +51,16 @@ Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\
 ### -s <br>
 `cargo run -- -p C:\user\project -r patterns.txt`<br>
 -- This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
+
+
+# 
+Possible patterns to include in patterns.txt:<br>
+- API keys: `$[A-Za-z0-9]{32}`<br>
+- IP addresses: `$[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}`<br>
+- Auth tokens: `$[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_=]+\.?[a-zA-Z0-9-_=]*$`<br>
+- Email addresses: `$[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`<br>
+<br>Some additional patterns:<br>
+- URLs: `$https?://[a-zA-Z0-9-_.]+`<br>
+- Phone numbers: `$\+?[0-9]{1,3}[\s-]?[0-9]{3}[\s-]?[0-9]{3}[\s-]?[0-9]{3}`<br>
+- Credit card numbers: `$[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}`<br>
+- Social Security numbers: `$[0-9]{3}-[0-9]{2}-[0-9]{4}`<br>

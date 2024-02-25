@@ -1,8 +1,8 @@
+mod utils;
+
 use clap::{Parser};
 use walkdir::WalkDir;
 use std::fs;
-use regex::Regex;
-use std::collections::HashSet;
 use std::cmp::max;
 
 struct Config {
@@ -19,6 +19,8 @@ struct Patterns {
 
 struct Result {
     matches: Vec<Vec<String>>,
+    high: bool,
+    mid: bool,
 }
 impl Result {
     fn clear(&mut self) {
@@ -35,7 +37,7 @@ impl Result {
 #[command(about = "Searches for phrases in files to find any sensitive data you might have left in your code")]
 struct Args {
     /// Sets the path to search
-    #[arg(short, long, default_value = ".")]
+    #[arg(short, long, required = true)]
     path: String,
 
     /// Sets the pattern to search (text file)
@@ -57,13 +59,16 @@ struct Args {
 
 fn main(){
     let config = parse_args();
-    let getter = make_pattern_list(&config.pattern.as_str());
+    let getter = utils::make_pattern_list(&config.pattern.as_str());
     println!("\n+{:-<width$}+", "", width = 26+config.path.len());
     println!("Searching for patterns in {}", config.path);
+    // change
     println!("+{:-<width$}+\n", "", width = 26+config.path.len());
     let patterns = &getter.patterns;
-    let ignore_list = get_ignored_paths(&config.ignore);
+    let ignore_list = utils::get_ignored_paths(&config.ignore);
     let mut apperance = 0;
+
+    // TODO - add better pattern fix suggestion
     for entry in WalkDir::new(&config.path){
         let entry = entry.unwrap();
         let path = entry.path();
@@ -82,7 +87,7 @@ fn main(){
                         panic!("Error reading file: {}", e)
                     }
                 };
-                let mut result = find_matches(&config, &file, &patterns);
+                let mut result = utils::find_matches(&config, &file, &patterns);
                 let max_length = patterns.iter().map(|p| p.len())
                     .max().unwrap_or(0);
                 let max_vec = result.matches.iter().map(|m| m.len())
@@ -92,28 +97,39 @@ fn main(){
 
                 // print vector matches
                 if result.matches.iter().map(|m| m.len()).sum::<usize>() > 0{
-                    println!("\n|=| {}", path.display());
+                    println!("\n|=| {}\x1b[0m", path.display());
                     for (i, pattern) in patterns.iter().enumerate() {
                         match result.matches.get(i) {
                             Some(matches) => {
                                 if !matches.is_empty() {
-                                    println!("\t| {:width$} : {}", pattern, matches.join(", "), width = max_length);
+                                    println!("\t\x1b[0;30;1m| {:width$} : {}", pattern, matches.join(", "), width = max_length);
                                     apperance += result.matches[i].len();
                                 }
                             },
                             None => {},
                         }
                     }
+                    if result.high | result.mid {
+                        println!("\x1b[0;42;37;1m\n[] FOUND RISKS SEVERITY: \x1b[0m");
+                    }
+                    if result.high {
+                        println!("\n\x1b[0;31;1m[ HIGH ] It seems like some sort of API key or other secret has been found.\n\t Consider using an environmental variables \x1b[0m");
+                    }
+                    if result.mid {
+                        println!("\n\x1b[0;33;1m[ MID ] It seems like some sort of sensitive data has been found.\n\tMaybe find another way to include them without hard-coding them\x1b[0m");
+                    }
                     result.clear();
-                    println!("\n[ {:=<width$} ]", "", width = max_above);
+                    println!("\n\x1b[0;30;1m[ {:=<width$} ]\x1b[0m", "", width = max_above);
                 }else{
                     continue;
                 }
             }
         }
-        println!();
     }
-    println!("Done , found {} matches", apperance);
+    println!("\n\x1b[0;35;1m+{:-<width$}+", "", width = 26+config.path.len());
+    println!("Done , found {} matches ... {} ", apperance, utils::att(&apperance));
+    println!("+{:-<width$}+", "", width = 26+config.path.len());
+    println!("\x1b[0m");
 }
 
 fn parse_args() -> Config {
@@ -130,130 +146,5 @@ fn parse_args() -> Config {
         ignore: ignore.to_string(),
         fast,
         show,
-    }
-}
-
-/// Function to read the ignore file and return a list of paths to ignore
-/// # Arguments
-/// * `ignore_file` - path to the ignore file
-/// # Returns
-/// * `HashSet` - set of paths to ignore
-fn get_ignored_paths(ignore_file: &str) -> HashSet<String> {
-    let content = match fs::read_to_string(ignore_file){
-        Ok(content) => content,
-        Err(e) => {
-            panic!("Error reading ignore file: {}", e)
-        }
-    };
-    let lines = content
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty() && !line.starts_with('#')) // Ignore empty lines and comments
-        .map(String::from)
-        .collect();
-    lines
-}
-
-/// Function to read the pattern file and return a list of patterns
-/// # Arguments
-/// * `file_path` - path to the pattern file
-/// # Returns
-/// * `Patterns` - struct of list of patterns
-fn make_pattern_list(file_path: &str) -> Patterns {
-    let pattern_content = match fs::read_to_string(file_path) {
-        Ok(content) => content,
-        Err(e) => {
-            panic!("Error reading pattern file: {}", e)
-        //     mby change and add some internal patterns which will be run in case of error
-        }
-    };
-
-    let patterns = pattern_content.lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-        .map(String::from)
-        .collect();
-
-    Patterns {
-        patterns,
-    }
-}
-
-/// Function to find matches in a file
-/// # Arguments
-/// * `config` - Configuration for the search
-/// * `file` - path to the file to search
-/// * `patterns` - list of patterns to search for
-/// # Returns
-/// * `Result` - struct of lists of matches
-/// # Example
-/// ```
-/// Result {
-///    matches: vec![vec![("pattern1","line"),("pattern1","line")],vec![("pattern2","line"),("pattern2","line")]],...]
-/// }
-/// ```
-fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> Result {
-    // initialize a vector for all the matches
-    let mut matches = Vec::new();
-    for pattern in patterns {
-        let mut found = Vec::new();
-
-        // checks if the pattern is a form of regex or a simple string
-        match pattern.chars().next() {
-            Some('$') => {  // REGEX
-                let mut line_number = 1;
-                let re = Regex::new(&pattern[1..]).unwrap();
-
-                // if fast is not set, go through all the lines else just finds if it contains the pattern
-                if !config.fast {
-                    for line in file.lines() {
-                        if re.is_match(line) {
-                            if config.show {
-                                println!("{}: {}", line_number, line);
-                            }
-                            found.push(line_number.to_string());
-                        }
-                        line_number += 1;
-                    }
-                }else {
-                    for line in file.lines() {
-                        if re.is_match(line) {
-                            found.push(line_number.to_string());
-                            break;
-                        }
-                    }
-                }
-                matches.push(found);
-            }
-
-            Some('"') => { // STRING
-                let mut line_number = 1;
-                // if fast is not set, go through all the lines else just finds if it contains the pattern
-                if !config.fast {
-                    for line in file.lines() {
-                        if line.contains(&pattern[1..]) {
-                            if config.show {
-                                println!("{}: {}", line_number, line);
-                            }
-                            found.push(line_number.to_string());
-                        }
-                        line_number += 1;
-                    }
-                }else {
-                    for line in file.lines() {
-                        if line.contains(&pattern[1..]) {
-                            found.push(line_number.to_string());
-                            break;
-                        }
-                    }
-                }
-                matches.push(found);
-
-            }
-            _ => {}
-        }
-    };
-    Result {
-        matches,
     }
 }
