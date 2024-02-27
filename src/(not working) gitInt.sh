@@ -19,18 +19,17 @@ mkdir -p "${tempDir}"
 
 # Get the filepaths of all changed files in the commit
 # git diff-tree --no-commit-id --name-only -r HEAD | while read filePath; do
-git diff --name-only | while read -r filePath; do
+git diff --name-only | while read filePath; do
     # Create the directory structure in the temp dir
-    dirPath="${tempDir}/$(dirname "${filePath}")"
-    mkdir -p "${dirPath}"
-
+#    dirPath="${tempDir}/$(dirname "${filePath}")"
+#    mkdir -p "${dirPath}"
     # Copy the file to the temp dir, replicating its directory structure
-    cp "${projectDir}/${filePath}" "${dirPath}"
+    cp "${projectDir}/${filePath}" "${filePath}"
+    echo "Copied ${filePath} to ${filePath}"
+    echo "${filePath}"
 done
 
 # Run the safeRun program with the temp dir as a flag argument, and other files from the project folder
-safe_run -p "${tempDir}" -r patterns.txt -i ignore.txt -s
+safe_run -p "${tempDir}" -s
 
-# Remove the temp dir
-rm -rf "${tempDir}"
-rmdir /s /q "%tempDir%"
+## Remove the temp dir

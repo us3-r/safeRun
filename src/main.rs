@@ -4,6 +4,7 @@ use clap::{Parser};
 use walkdir::WalkDir;
 use std::fs;
 use std::cmp::max;
+use std::env;
 
 struct Config {
     path: String,
@@ -41,11 +42,11 @@ struct Args {
     path: String,
 
     /// Sets the pattern to search (text file)
-    #[arg(short='r', long, default_value = "patterns.txt")]
+    #[arg(short='r', long, default_value = "None")]
     pattern: String,
 
     /// sets what files and folders to ignore
-    #[arg(short, long, default_value = "ignore.txt")]
+    #[arg(short, long, default_value = "None")]
     ignore: String,
 
     /// Only checks if patterns are present (not where)
@@ -62,13 +63,11 @@ fn main(){
     let getter = utils::make_pattern_list(&config.pattern.as_str());
     println!("\n+{:-<width$}+", "", width = 26+config.path.len());
     println!("Searching for patterns in {}", config.path);
-    // change
     println!("+{:-<width$}+\n", "", width = 26+config.path.len());
     let patterns = &getter.patterns;
     let ignore_list = utils::get_ignored_paths(&config.ignore);
     let mut apperance = 0;
 
-    // TODO - add better pattern fix suggestion
     for entry in WalkDir::new(&config.path){
         let entry = entry.unwrap();
         let path = entry.path();
@@ -135,11 +134,17 @@ fn main(){
 fn parse_args() -> Config {
     let args = Args::parse();
     let path = args.path;
-    let pattern = args.pattern;
-    let ignore = args.ignore;
+    let mut pattern = args.pattern;
+    let mut ignore = args.ignore;
     let fast = args.fast;
     let show = args.show_lines;
     // return Config ( do not use ';' after the expression you want to return )
+    if &pattern == "None" {
+        pattern = env::current_exe().unwrap().parent().unwrap().parent().unwrap().parent().unwrap().join("patterns.txt").to_str().unwrap().to_string();
+    }
+    if &ignore == "None" {
+        ignore = env::current_exe().unwrap().parent().unwrap().parent().unwrap().parent().unwrap().join("ignore.txt").to_str().unwrap().to_string();
+    }
     Config {
         path: path.to_string(),
         pattern: pattern.to_string(),

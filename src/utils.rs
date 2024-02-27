@@ -9,7 +9,6 @@ enum ProcessedResult {
 }
 
 fn handle_lines(file_content: &str, return_hash_set: bool) -> ProcessedResult {
-
     let content_lines = file_content.lines();
     if return_hash_set {
         let lines: HashSet<String> = content_lines
@@ -83,7 +82,6 @@ pub fn make_pattern_list(file_path: &str) -> Patterns {
     let patterns = handle_lines(&pattern_content, false);
     match patterns {
         ProcessedResult::VecResult(patterns) => {
-            println!("Patterns: {:?}", &patterns);
             Patterns {
                 patterns,
             }

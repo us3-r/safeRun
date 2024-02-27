@@ -7,6 +7,7 @@ And finally, run the .exe with desired flags <br>
 (You can also use `cargo run -- flags`)
 
 ## setup
+(currently not working)<br>
 If you wish to run this program automatically before commit you can run setup.sh<br>
 This will add a pre-commit hook that will run the program before every commit.<br>
 NOTE: you must first build the program using cargo build and add it to path<br>
@@ -56,7 +57,7 @@ Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\
 # 
 Possible patterns to include in patterns.txt:<br>
 - API keys: `$[A-Za-z0-9]{32}`<br>
-- IP addresses: `$[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}`<br>
+- IP addresses: `$.*((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}`<br>
 - Auth tokens: `$[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_=]+\.?[a-zA-Z0-9-_=]*$`<br>
 - Email addresses: `$[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`<br>
 <br>Some additional patterns:<br>

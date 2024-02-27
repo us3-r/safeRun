@@ -11,9 +11,9 @@
 #echo "export PATH=\$PATH:$SAFE_RUN_PATH" >> "$HOME/.bashrc"
 
 
-#Copy gitInt.sh to .git/hooks and rename it to pre-commit
+#Copy (not working) gitInt.sh to .git/hooks and rename it to pre-commit
 echo "Copying gitInt.sh to .git/hooks/pre-commit"
-cp src/gitInt.sh .git/hooks/pre-commit
+cp src/(not working) gitInt.sh .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 echo "pre-commit hook has been set."
 
