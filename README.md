@@ -7,7 +7,7 @@ And finally, run the .exe with desired flags <br>
 (You can also use `cargo run -- flags`)
 
 ## setup
-(currently not working)<br>
+(currently not working as intended? need to test in other git repos)<br>
 If you wish to run this program automatically before commit you can run setup.sh<br>
 This will add a pre-commit hook that will run the program before every commit.<br>
 NOTE: you must first build the program using cargo build and add it to path<br>
@@ -33,7 +33,8 @@ Just write what to ignore (see ignore.txt for reference)
 `-i` or `--ignore` : specify the path to the file that includes which dirs or folders to ignore. !optional <br>
 `-f` or `--fast` : flag::if used the program will only find the first match within a file. <br>
 `-s` or `--show-lines` ; flag::if used the program will display lines in which the pattern occurs <br>
-note: `-f` and `-s` cannot be used together
+note: `-f` and `-s` cannot be used together (if both are used the program will ignore `-s`)<br>
+`-h` or `--help` : show help message <br>
 
 ## Examples <br>
 Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\project<br>

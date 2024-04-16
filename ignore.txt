@@ -63,3 +63,4 @@ release
 target
 patterns.txt
 ignore.txt
+.json
