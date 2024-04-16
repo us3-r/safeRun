@@ -108,10 +108,9 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
     let mut matches = Vec::new();
     let mut h = false;
     let mut m = false;
-    let know_patterns:Vec<&str> = vec![
-        r"((\[(A.*|a.*)\]\{\d+\}){1}|.*PRIVATE KEY|^ey)",
-        r".*\[0.*\].*\{\d+\}"
-    ];
+    let mut first_match = true;
+    let mut written_lines = Vec::new();
+
     for pattern in patterns {
         let mut found = Vec::new();
 
@@ -119,29 +118,27 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
         match pattern.chars().next() {
             Some('$') => {  // REGEX
                 let mut line_number = 1;
-                let re = Regex::new(&pattern[1..]).unwrap();
+                let re = Regex::new(&pattern[2..]).unwrap();
 
                 // if fast is not set, go through all the lines else just finds if it contains the pattern
                 if !config.fast {
                     for line in file.lines() {
                         if re.is_match(line) {
-                            if config.show {
-                                let mut severity = -1;
-                                for (i, p) in know_patterns.iter().enumerate() {
-                                    let re = Regex::new(p).unwrap();
-                                    if re.is_match(&pattern[1..]) {
-                                        severity = i as i32;
-                                        break;
-                                    }
-                                }
+                            if first_match {
+                                print!("\n");
+                                first_match = false;
+                            }
+                            if config.show && !written_lines.contains(&line_number) {
+                                let severity = pattern.chars().nth(1).unwrap().to_digit(10).unwrap() as i32;
+
                                 let line = format!("\t{}", line.trim());
                                 match severity {
 
-                                    0 => {
+                                    1 => {
                                         h = true;
                                         println!("\x1b[0;31;1m\t   line: {}|{}\x1b[0m",line_number, line)
                                     },
-                                    1 => {
+                                    2 => {
                                         m = true;
                                         println!("\x1b[0;33;1m\t   line: {}|{}\x1b[0m",line_number, line)
                                     },
@@ -150,6 +147,7 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
                                 // println!("{}: {}", line_number, line);
                             }
                             found.push(line_number.to_string());
+                            written_lines.push(line_number);
                         }
                         line_number += 1;
                     }
@@ -169,25 +167,19 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
                 // if fast is not set, go through all the lines else just finds if it contains the pattern
                 if !config.fast {
                     for line in file.lines() {
-                        if line.contains(&pattern[1..]) {
-                            if config.show {
+                        if line.contains(&pattern[2..]) {
+                            if config.show && !written_lines.contains(&line_number){
                                 // Check for severity of the pattern (with regex)
-                                let mut severity = -1;
-                                for (i, p) in know_patterns.iter().enumerate() {
-                                    let re = Regex::new(p).unwrap();
-                                    if re.is_match(&pattern[1..]) {
-                                        severity = i as i32;
-                                        break;
-                                    }
-                                }
+                                let severity = pattern.chars().nth(1).unwrap().to_digit(10).unwrap() as i32;
+
                                 let line = format!("\t{}", line.trim());
                                 match severity {
 
-                                    0 => {
+                                    1 => {
                                         h = true;
                                         println!("\x1b[0;31;1m\t   line: {}|{}\x1b[0m",line_number, line)
                                     },
-                                    1 => {
+                                    2 => {
                                         m = true;
                                         println!("\x1b[0;33;1m\t   line: {}|{}\x1b[0m",line_number, line)
                                     },
@@ -196,6 +188,7 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
                                 // println!("{}: {}", line_number, line);
                             }
                             found.push(line_number.to_string());
+                            written_lines.push(line_number);
                         }
                         line_number += 1;
                     }
@@ -212,7 +205,15 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
             }
             _ => {}
         }
+        // print values of the found vector
+
+
     };
+    //
+
+
+
+
     crate::Result {
         matches,
         high: h,
@@ -221,17 +222,17 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<String>) -> crat
 }
 
 pub fn att(n:&usize) -> &'static str {
-    let mut att:&str=":(";
-    if n == &0 {
+    let  att:&str;
+    if *n == 0 {
         att = "~ WOOOOOOOOOOO ~";
     }
-    else if n < &5 {
+    else if *n < 5 {
         att = ":)";
     }
-    else if n < &10 {
+    else if *n < 10 {
         att = ":|";
     }
-    else if n > &10 && n < &20{
+    else if *n > 10 && *n < 20{
         att = ":(";
     }
     else {
@@ -239,3 +240,57 @@ pub fn att(n:&usize) -> &'static str {
     }
     att
 }
+
+// TODO: Might be faster than the current implementation but smthing wired is happening (chineese symbols)
+// pub fn find_matches_test(config: &Config, file: &str, patterns: &Vec<String>) -> crate::Result {
+//     let mut matches = vec![Vec::new(); patterns.len()];
+//     let mut high = false;
+//     let mut mid = false;
+//
+//     // Pre-compile all regex patterns (including those for severity checking)
+//     let regex_patterns: Vec<_> = patterns.iter().map(|p| Regex::new(&p[1..]).unwrap()).collect();
+//     let known_patterns = vec![
+//         Regex::new(r"((\[(A.*|a.*)]\{\d+})|.*PRIVATE KEY|^ey)").unwrap(),
+//         Regex::new(r".*\[0.*].*\{\d+}").unwrap(),
+//     ];
+//
+//     // Process each line of the file once
+//     file.lines().enumerate().for_each(|(line_number, line)| {
+//         regex_patterns.iter().enumerate().for_each(|(i, regex)| {
+//             if regex.is_match(line) {
+//                 if config.fast {
+//                     matches[i].push(line_number.to_string());
+//                     return;
+//                 } else {
+//                     // Determine severity and log accordingly
+//                     let severity = known_patterns.iter().enumerate().find_map(|(idx, pat)| {
+//                         if pat.is_match(line) { Some(idx) } else { None }
+//                     });
+//
+//                     if config.show {
+//                         let line_display = format!("\t{}", line.trim());
+//                         match severity {
+//                             Some(0) => {  // High severity
+//                                 high = true;
+//                                 println!("\x1b\n[0;31;1m\t   line: {}|{}\x1b[0m", line_number, line_display);
+//                             },
+//                             Some(1) => {  // Medium severity
+//                                 mid = true;
+//                                 println!("\x1b\n[0;33;1m\t   line: {}|{}\x1b[0m", line_number, line_display);
+//                             },
+//                             _ => println!("\x1b\n[0;34;1m\t   line: {}|{}\x1b[0m", line_number, line_display),
+//                         }
+//                     }
+//                     matches[i].push(line_number.to_string());
+//                 }
+//             }
+//         });
+//     });
+//
+//     // Construct the result with the gathered matches and severity information
+//     crate::Result {
+//         matches,
+//         high,
+//         mid,
+//     }
+// }

@@ -2,9 +2,12 @@ mod utils;
 
 use clap::{Parser};
 use walkdir::WalkDir;
-use std::fs;
-use std::cmp::max;
-use std::env;
+use std::{
+    cmp::max,
+    env,
+    fs,
+    io::{self, Write},
+};
 
 struct Config {
     path: String,
@@ -33,7 +36,7 @@ impl Result {
 
 #[derive(Parser, Debug)]
 #[command(name = "safeRun")]
-#[command(version = "0")]
+#[command(version = "1.1")]
 #[command(author = "us3-r")]
 #[command(about = "Searches for phrases in files to find any sensitive data you might have left in your code")]
 struct Args {
@@ -67,6 +70,20 @@ fn main(){
     let patterns = &getter.patterns;
     let ignore_list = utils::get_ignored_paths(&config.ignore);
     let mut apperance = 0;
+    let mut max_length = 0;
+
+    if config.show{
+        let mut filenames: Vec<String> = Vec::new();
+        for entry in WalkDir::new(&config.path).into_iter().filter_map(|e| e.ok()) {
+            if entry.file_type().is_file() {
+                filenames.push(entry.path().display().to_string());
+            }
+        }
+        max_length = filenames.iter().map(|s| s.len()).max().unwrap_or(0);
+    }
+    else {
+        max_length = 5;
+    }
 
     for entry in WalkDir::new(&config.path){
         let entry = entry.unwrap();
@@ -86,6 +103,8 @@ fn main(){
                         panic!("Error reading file: {}", e)
                     }
                 };
+                print!(" |=| {:width$}\x1b[0m", path.display(), width=max_length-(max_length*2/3));
+                io::stdout().flush().unwrap();
                 let mut result = utils::find_matches(&config, &file, &patterns);
                 let max_length = patterns.iter().map(|p| p.len())
                     .max().unwrap_or(0);
@@ -96,12 +115,11 @@ fn main(){
 
                 // print vector matches
                 if result.matches.iter().map(|m| m.len()).sum::<usize>() > 0{
-                    println!("\n|=| {}\x1b[0m", path.display());
                     for (i, pattern) in patterns.iter().enumerate() {
                         match result.matches.get(i) {
                             Some(matches) => {
                                 if !matches.is_empty() {
-                                    println!("\t\x1b[0;30;1m| {:width$} : {}", pattern, matches.join(", "), width = max_length);
+                                    print!("\n\t\x1b[0;30;1m| {:width$} : {}", pattern, matches.join(", "), width = max_length);
                                     apperance += result.matches[i].len();
                                 }
                             },
@@ -109,18 +127,19 @@ fn main(){
                         }
                     }
                     if result.high | result.mid {
-                        println!("\x1b[0;42;37;1m\n[] FOUND RISKS SEVERITY: \x1b[0m");
+                        println!("\n\x1b[0;42;37;1m\n[!!!] FOUND SEVERITY RISKS: \x1b[0m");
                     }
                     if result.high {
-                        println!("\n\x1b[0;31;1m[ HIGH ] It seems like some sort of API key or other secret has been found.\n\t Consider using an environmental variables \x1b[0m");
+                        println!("\n\x1b[0;31;1m[ HIGH ] It seems like a highly privileged information has been left in the code base\n\t Change the way you implemented such data !\x1b[0m");
                     }
                     if result.mid {
-                        println!("\n\x1b[0;33;1m[ MID ] It seems like some sort of sensitive data has been found.\n\tMaybe find another way to include them without hard-coding them\x1b[0m");
+                        println!("\n\x1b[0;33;1m[ MID ] Some data has been left in the code that mby should not be in it?\n\tConsider an alternative way to display such data or remove it\x1b[0m");
                     }
                     result.clear();
                     println!("\n\x1b[0;30;1m[ {:=<width$} ]\x1b[0m", "", width = max_above);
                 }else{
-                    continue;
+                    print!("\x1b[0;32;1m {:s$}OK\n\x1b[0m", "", s = 10);
+                    // println!("\x1b[0m");
                 }
             }
         }
