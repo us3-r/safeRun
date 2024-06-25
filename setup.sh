@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # UNCOMMENT THE FOLLOWING IF USING UNIX
-#SAFE_RUN_PATH=$(pwd)/safe_run
-#echo "Adding safe_run to PATH for this session."
-#export PATH=$PATH:$SAFE_RUN_PATH
+SAFE_RUN_PATH=$(pwd)/safe_run
+echo "Adding safe_run to PATH for this session."
+export PATH=$PATH:$SAFE_RUN_PATH
 ## To permanently add it to PATH, append the export command to .bashrc or .bash_profile
-#echo "export PATH=\$PATH:$SAFE_RUN_PATH" >> "$HOME/.bashrc"
+echo "export PATH=\$PATH:$SAFE_RUN_PATH" >> "$HOME/.bashrc"
 
 
 # TODO: currently only works for adding to .git in working dir, but should be global soooo

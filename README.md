@@ -39,19 +39,19 @@ note: `-f` and `-s` cannot be used together (if both are used the program will i
 ## Examples <br>
 Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\project<br>
 ### Default use <br>
-`cargo run -- -p C:\user\project -r patterns.txt`<br>
+`cargo run -- --path C:\user\project -p patterns.txt`<br>
 -- This will show us which files contain the patterns and on what lines.--<br><br>
 
 ### -i <br>
-`cargo run -- -p C:\user\project -r patterns.txt -i ignore.txt`<br>
+`cargo run -- --path C:\user\project -p patterns.txt -i ignore.txt`<br>
 -- This will show us which files contain the patterns and on what lines AND will ignore all files/folders within ignore.txt .--<br><br>
 
 ### -f <br>
-`cargo run -- -p C:\user\project -r patterns.txt -f`<br>
+`cargo run -- --path C:\user\project -p patterns.txt -f`<br>
 -- This will show us which files contain the patterns.--<br><br>
 
 ### -s <br>
-`cargo run -- -p C:\user\project -r patterns.txt`<br>
+`cargo run -- --path C:\user\project -p patterns.txt`<br>
 -- This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
 
 
