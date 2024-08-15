@@ -1,0 +1,115 @@
+{
+    "patterns": {
+        "severity": {
+            "h": [
+                {
+                    "pattern": "[A-Za-z0-9]{32}",
+                    "comment": "check for any possible API key or access token",
+                    "regex": true
+                },
+                {
+                    "pattern": "[A-Fa-f0-9]{32}",
+                    "comment": "check for MD5 hash",
+                    "regex": true
+                },
+                {
+                    "pattern": "[A-Za-z0-9]{40}",
+                    "comment": "check for SHA-1 hash",
+                    "regex": true
+                },
+                {
+                    "pattern": "[A-Za-z0-9]{64}",
+                    "comment": "check for SHA-256 hash",
+                    "regex": true
+                },
+                {
+                    "pattern": "[A-Za-z0-9]{128}",
+                    "comment": "check for SHA-512 hash",
+                    "regex": true
+                },
+                {
+                    "pattern": "[0-9]{3}-[0-9]{2}-[0-9]{4}",
+                    "comment": "check for SSN",
+                    "regex": true
+                }
+            ],
+            "m": [
+                {
+                    "pattern": "((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}",
+                    "comment": "check for IP address",
+                    "regex": true
+                }
+            ],
+            "l": [
+
+            ]
+        }
+    },
+    "ignore": [
+        ".git",
+        ".gitignore",
+        ".gitattributes",
+        ".svn",
+        "__pycache__",
+        "node_modules",
+        ".env",
+        ".idea",
+        ".vscode",
+        ".vagrant",
+        "Vagrantfile",
+        ".terraform",
+        ".terraform.lock.hcl",
+        ".pipenv",
+        ".virtualenv",
+        ".venv",
+        ".dockerignore",
+        ".npmignore",
+        ".gitlab-ci.yml",
+        ".travis.yml",
+        "Jenkinsfile",
+        ".ruby-version",
+        ".rvmrc",
+        "Gemfile.lock",
+        "config.ru",
+        "Capfile",
+        ".yaml",
+        ".log",
+        ".lock",
+        ".img",
+        ".imgs",
+        ".tmp",
+        ".vendor",
+        ".bin",
+        ".obj",
+        ".build",
+        ".dist",
+        ".out",
+        ".debug",
+        ".release",
+        ".DS_Store",
+        "Thumbs.db",
+        "desktop.ini",
+        ".bundle",
+        ".pickle",
+        ".pdf",
+        ".png",
+        ".jpg",
+        "Gemfile.lock",
+        "config.ru",
+        "Capfile",
+        "log",
+        "tmp",
+        "vendor",
+        "venv",
+        "bin",
+        "obj",
+        "build",
+        "dist",
+        "out",
+        "debug",
+        "release",
+        "target",
+        "patterns.txt",
+        "ignore.txt"
+    ]
+}
