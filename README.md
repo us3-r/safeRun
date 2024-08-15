@@ -1,3 +1,5 @@
+### Current branch is in testing
+
 # safeRun
 <br>safeRun is a command-line program that goes through the given directory and checks files if they contain any sensitive data.
 <br>How to use:<br>
