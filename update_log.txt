@@ -1,0 +1,7 @@
+- utils functions removed ( removed functions to get ignored paths, same code is in the main file)
+- changed the way program gets its patterns and ignored paths ( form .txt files to one .json file)
+
+----------------------------------------------------------------------------------------------------------------------------
+possible future upgrades:
+- add AI ( :D ), to better describe patterns
+- add comments to final report

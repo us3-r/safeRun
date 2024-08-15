@@ -4,54 +4,75 @@
 build the program using cargo
 `cargo build`<br>
 And finally, run the .exe with desired flags <br>
-(You can also use `cargo run -- flags`)
+(You can also use `c argo run -- flags`)
 
-## setup
+## SETUP
 (currently not working)<br>
 If you wish to run this program automatically before commit you can run setup.sh<br>
 This will add a pre-commit hook that will run the program before every commit.<br>
 NOTE: you must first build the program using cargo build and add it to path<br>
 
-## patterns.txt
-This file can be anywhere or have any name.<br>
-There are 2 ways the program will search for patterns:<br>
-1. using Regex:<br>
-   In the patterns file, we start the line containing the regex expression with `$`<br>
-   -> example: `$.*[0-9].*` (of cores the expression can be more complicated than this)<br>
-2. strings:<br>
-   If we have a phrase or only a string we want to find we start the line with `"`<br>
-   -> example: `"lucid-sonar-123415`<br>
+## PATTERNS block
+```
+{
+   ... 
+   "patterns" : {
+      "severity" : {
+         "h":[] ,
+         "m":[] ,
+         "l":[]
+      }
+   } 
+}
+```
+<br> is used to store patterns you want to search for.<br>
+Into each severity list you add a pattern block which looks like so:<br>
 
-## ignore.txt
-This file can be anywhere or have any name<br>
-Just write what to ignore (see ignore.txt for reference)
+```
+{
+    "pattern": "[A-Za-z0-9]{128}" | "some string", 
+    "comment": "check for SHA-512 hash", 
+    "regex": true | false
+}
+```
+
+Where:<br>
+``pattern`` is a regex pattern or a string you want to search for.<br>
+``comment`` is a comment that will be displayed when the pattern is found.<br>
+``regex`` is a boolean value that tells the program if the pattern is a regex pattern or a string.<br>
+
+## IGNORE block
+
+```
+{
+   ... 
+   "ignore" : [] 
+}
+``` 
+<br> is used to store files or paths you do not want to search through.<br>
+You can add files or directories to the ignore block in the settings.json file as if you would to .gitignore<br>
 
 
 ## Available flags:<br>
 `-p` or `--path` : specify the path to a directory.  !required<br>
-`-r` or `--pattern` : specify the path to the file with patterns to look for.  !currently required <br>
-`-i` or `--ignore` : specify the path to the file that includes which dirs or folders to ignore. !optional <br>
+`-s` or `--settings`: path to settings.json <br>
 `-f` or `--fast` : flag::if used the program will only find the first match within a file. <br>
-`-s` or `--show-lines` ; flag::if used the program will display lines in which the pattern occurs <br>
+`-l` or `--show-lines` ; flag::if used the program will display lines in which the pattern occurs <br>
 note: `-f` and `-s` cannot be used together (if both are used the program will ignore `-s`)<br>
 `-h` or `--help` : show help message <br>
 
 ## Examples <br>
 Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\project<br>
 ### Default use <br>
-`cargo run -- -p C:\user\project -r patterns.txt`<br>
+`cargo run -- -p C:\user\project -s settings.json`<br>
 -- This will show us which files contain the patterns and on what lines.--<br><br>
 
-### -i <br>
-`cargo run -- -p C:\user\project -r patterns.txt -i ignore.txt`<br>
--- This will show us which files contain the patterns and on what lines AND will ignore all files/folders within ignore.txt .--<br><br>
-
 ### -f <br>
-`cargo run -- -p C:\user\project -r patterns.txt -f`<br>
+`cargo run -- -p C:\user\project -s settings.json -f`<br>
 -- This will show us which files contain the patterns.--<br><br>
 
-### -s <br>
-`cargo run -- -p C:\user\project -r patterns.txt`<br>
+### -l <br>
+`cargo run -- -p C:\user\project -s settings.json -l`<br>
 -- This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
 
 
