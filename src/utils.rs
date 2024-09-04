@@ -1,4 +1,7 @@
+use std::{fmt::Arguments, future};
+use clap::builder::Str;
 use regex::Regex;
+use serde_json::de::SliceRead;
 use crate::{Config, PatternVS};
 
 /// Function to find matches in a file
@@ -14,7 +17,9 @@ use crate::{Config, PatternVS};
 ///    matches: vec![vec![("pattern1","line"),("pattern1","line")],vec![("pattern2","line"),("pattern2","line")]],...]
 /// }
 /// ```
-pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> crate::Result {
+pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>, color: bool) -> crate::Result {
+
+
     // initialize a vector for all the matches
     let mut matches = Vec::new();
     let mut h = false;
@@ -23,6 +28,8 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
     let mut written_lines = Vec::new();
     for pattern_ in patterns {
         let mut found = Vec::new();
+        let mut line_ctx:Vec<String> = Vec::new();
+
         let pattern = &pattern_.pattern;
         let is_regex = pattern_.regex;
 
@@ -45,17 +52,19 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
                             match severity {
                                 1 => {
                                     h = true;
-                                    println!("\x1b[0;31;1m\t   line: {}|{}\x1b[0m", line_number, line)
+                                    custom_println(color, "0;31;1", format_args!("\tline: {}|{}", line_number, line));
                                 }
                                 2 => {
                                     m = true;
-                                    println!("\x1b[0;33;1m\t   line: {}|{}\x1b[0m", line_number, line)
+                                    custom_println(color, "0;33;1", format_args!("\tline: {}|{}", line_number, line));
                                 }
-                                _ => println!("\x1b[0;34;1m\t   line: {}|{}\x1b[0m", line_number, line),
+                                _ => {
+                                    custom_println(color, "0;34;1", format_args!("\tline: {}|{}", line_number, line));
+                                },
                             }
                             // println!("{}: {}", line_number, line);
                         }
-                        found.push(line_number.to_string());
+                        found.push(vec![line_number.to_string(), line.to_string()]);
                         written_lines.push(line_number);
                     }
                     line_number += 1;
@@ -63,11 +72,12 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
             } else {
                 for line in file.lines() {
                     if re.is_match(line) {
-                        found.push(line_number.to_string());
+                        found.push(vec![line_number.to_string(), line.to_string()]);
                         break;
                     }
                 }
             }
+            // print!("{:?}", &found);
             matches.push(found);
         } else {
             let mut line_number = 1;
@@ -76,25 +86,24 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
                 for line in file.lines() {
                     if line.contains(&pattern_.pattern) {
                         if config.show && !written_lines.contains(&line_number){
-                            // Check for severity of the pattern (with regex)
                             let severity = pattern_.severity;
 
                             let line = format!("\t{}", line.trim());
                             match severity {
-
                                 1 => {
                                     h = true;
-                                    println!("\x1b[0;31;1m\t   line: {}|{}\x1b[0m",line_number, line)
-                                },
+                                    custom_println(color, "0;31;1", format_args!("\tline: {}|{}", line_number, line));
+                                }
                                 2 => {
                                     m = true;
-                                    println!("\x1b[0;33;1m\t   line: {}|{}\x1b[0m",line_number, line)
+                                    custom_println(color, "0;33;1", format_args!("\tline: {}|{}", line_number, line));
+                                }
+                                _ => {
+                                    custom_println(color, "0;34;1", format_args!("\tline: {}|{}", line_number, line));
                                 },
-                                _ => println!("\x1b[0;34;1m\t   line: {}|{}\x1b[0m",line_number, line),
                             }
-                            // println!("{}: {}", line_number, line);
                         }
-                        found.push(line_number.to_string());
+                        found.push(vec![line_number.to_string(), line.to_string()]);
                         written_lines.push(line_number);
                     }
                     line_number += 1;
@@ -102,7 +111,7 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
             }else {
                 for line in file.lines() {
                     if line.contains(&pattern[1..]) {
-                        found.push(line_number.to_string());
+                        found.push(vec![line_number.to_string(), line.to_string()]);
                         break;
                     }
                 }
@@ -116,6 +125,8 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>) -> c
         high: h,
         mid: m,
     }
+
+    /* mathes = [["28", "        responses = runner.get_form_responses(service, form_id)  # 1NiMZe6U3hThZM2a9rg2ZlochRh8DtrnutRVI-CLIeEI"]][][][][][][] (example) */
 }
 
 pub fn att(n: &usize) -> &'static str {
@@ -132,4 +143,33 @@ pub fn att(n: &usize) -> &'static str {
         att = " WAT IN THE GODS NAME HAVE YOU DONE ";
     }
     att
+}
+
+
+/// Custom function to print with/without color (replace print!())
+/// ### Arguments
+/// #### `color` - bool to print with color or not
+/// #### `color_code` - color code to print with
+/// #### `format` - stuff to be printed [example: println!("{} {}", a, b) -> format_args!("{} {}", a, b)]
+/// 
+pub fn custom_print(color: bool, color_code: &str, format: Arguments){
+    if color {
+        print!("\x1b[{}m{}\x1b[0m", color_code, format);
+    } else {
+        print!("{}", format);
+    }
+}
+
+/// Custom function to print with/without color (replace println!())
+/// ### Arguments
+/// #### `color` - bool to print with color or not
+/// #### `color_code` - color code to print with
+/// #### `format` - stuff to be printed [example: println!("{} {}", a, b) -> format_args!("{} {}", a, b)]
+/// 
+pub fn custom_println(color: bool, color_code: &str, format: Arguments){
+    if color {
+        println!("\x1b[{}m{}\x1b[0m", color_code, format);
+    } else {
+        println!("{}", format);
+    }
 }

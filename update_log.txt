@@ -1,7 +1,6 @@
-- utils functions removed ( removed functions to get ignored paths, same code is in the main file)
-- changed the way program gets its patterns and ignored paths ( form .txt files to one .json file)
-
+- added report generation
+TODO: expend settings.json to include more options
 ----------------------------------------------------------------------------------------------------------------------------
 possible future upgrades:
 - add AI ( :D ), to better describe patterns
-- add comments to final report
+- add comments to a final report
