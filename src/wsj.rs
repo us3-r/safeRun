@@ -92,6 +92,7 @@ data should look something like this:
     "<line content>",   2
     "<pattern>",        3
     "<severity>"        4
+    "<blank_line>"      5
 ]
 
 */
@@ -107,7 +108,7 @@ fn write_as_report_txt(file: &mut File, data: Vec<String>, exc: String, caps: bo
     let context: String;
     match exc.as_str() {                    
         "none" => {
-            context = format!("In file: {} at line {}; ctx--> {}; LVL: {} -pattern-> {}\n", data[0], data[1], data[2], data[4], data[3]);
+            context = format!("In file: {} at line {}; ctx--> {}; LVL: {} -pattern-> {};\nEnds with blank? {}\n", data[0], data[1], data[2], data[4], data[3], data[5]);
         }
         "line" => {
             context = format!("In file: {}; LVL: {} -pattern-> {}\n", data[0], data[4], data[3]);

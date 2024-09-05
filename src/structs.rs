@@ -82,6 +82,7 @@ pub struct Result {
     pub matches: Vec<Vec<Vec<String>>>,
     pub high: bool,
     pub mid: bool,
+    pub ends_with_blank_line: bool,
 }
 
 impl Result {

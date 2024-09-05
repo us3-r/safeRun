@@ -82,7 +82,6 @@ fn main() {
     println!("Searching for patterns in {}", project_path);
     println!("+{:-<width$}+\n", "", width = 26 + project_path.len());
     let mut appearance = 0;
-    let max_length;
 
     if config.show {
         let mut filenames: Vec<String> = Vec::new();
@@ -94,9 +93,6 @@ fn main() {
                 filenames.push(entry.path().display().to_string());
             }
         }
-        max_length = filenames.iter().map(|s| s.len()).max().unwrap_or(0);
-    } else {
-        max_length = 5;
     }
 
     for entry in WalkDir::new(&project_path) {
@@ -164,6 +160,7 @@ fn main() {
                                         } else {
                                             "low".to_string()
                                         },
+                                        result.ends_with_blank_line.to_string()
                                     ]);
                                     custom_print (
                                         color,
