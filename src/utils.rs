@@ -1,8 +1,9 @@
-use std::{fmt::Arguments, future};
-use clap::builder::Str;
+use std::fmt::Arguments;
 use regex::Regex;
-use serde_json::de::SliceRead;
 use crate::{Config, PatternVS};
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
 
 /// Function to find matches in a file
 /// # Arguments
@@ -28,8 +29,6 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>, colo
     let mut written_lines = Vec::new();
     for pattern_ in patterns {
         let mut found = Vec::new();
-        let mut line_ctx:Vec<String> = Vec::new();
-
         let pattern = &pattern_.pattern;
         let is_regex = pattern_.regex;
 
@@ -47,8 +46,8 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>, colo
                         }
                         if config.show && !written_lines.contains(&line_number) {
                             let severity = &pattern_.severity;
-
                             let line = format!("\t{}", line.trim());
+
                             match severity {
                                 1 => {
                                     h = true;
@@ -124,6 +123,7 @@ pub fn find_matches(config: &Config, file: &str, patterns: &Vec<PatternVS>, colo
         matches,
         high: h,
         mid: m,
+        ends_with_blank_line: ends_with_blank_line(file),
     }
 
     /* mathes = [["28", "        responses = runner.get_form_responses(service, form_id)  # 1NiMZe6U3hThZM2a9rg2ZlochRh8DtrnutRVI-CLIeEI"]][][][][][][] (example) */
@@ -172,4 +172,21 @@ pub fn custom_println(color: bool, color_code: &str, format: Arguments){
     } else {
         println!("{}", format);
     }
+}
+
+/// Function to check if the file ends with a blank line
+/// ### Arguments
+/// #### `file` - file to check
+/// 
+/// ### Returns
+/// #### `bool` - true if the file ends with a blank line, false otherwise
+/// 
+fn ends_with_blank_line(file: &str) -> bool {
+
+    println!("{:?}", file.lines().last().unwrap().trim());
+    
+    if file.lines().last().unwrap().trim() == "" {
+        return true;
+    }
+    false
 }
