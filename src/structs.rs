@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct  Config {
     pub path: String,
     pub settings: String,
@@ -49,6 +50,7 @@ pub struct ReportParams {
 pub struct  RunSettings {
     pub color_output: bool,
     pub display_ok_files: bool,
+    pub show_patterns: bool,
     pub use_custom_severity_and_exp: bool,
     pub check_code: bool,
     pub write_report: bool
@@ -89,4 +91,11 @@ impl Result {
     pub fn clear(&mut self) {
         self.matches.clear();
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct FoundMatchesResult {
+    // pub line_: String,
+    pub pattern_: String,
+    pub severity_: u32,
 }

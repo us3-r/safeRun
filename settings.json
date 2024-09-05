@@ -3,6 +3,7 @@
     "run_settings": {
         "color_output": true,
         "display_ok_files": true,
+        "show_patterns": true,
         "use_custom_severity_and_exp": false,
         "check_code": false,
         "write_report": false

@@ -1,4 +1,5 @@
 - added report generation
+- rewrote the main function and helper functions to be more modular, a small loss in performance
 TODO: expend settings.json to include more options
 ----------------------------------------------------------------------------------------------------------------------------
 possible future upgrades:
