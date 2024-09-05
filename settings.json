@@ -3,6 +3,7 @@
     "run_settings": {
         "color_output": true,
         "display_ok_files": true,
+        "show_patterns": true,
         "use_custom_severity_and_exp": false,
         "check_code": false,
         "write_report": false
@@ -12,7 +13,7 @@
         "ends_with_blank_line": true
     },
     "report_settings": {
-        "report_path": "C:\\Users\\gfhyt\\CLionProjects\\rust\\safeRun",
+        "report_path": "C:\\Users\\gfhyt\\CLionProjects\\rust\\safeRun\\reports",
         "report_title": "Test-title",
         "report_params": {
             "type_": "txt", 
@@ -132,6 +133,8 @@
         "release",
         "target",
         "patterns.txt",
-        "ignore.txt"
+        "ignore.txt",
+        "keys",
+        "tests\\keys"
     ]
 }

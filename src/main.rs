@@ -1,17 +1,17 @@
-use crate::utils::{custom_print, custom_println};
+use utils_rw::{custom_print, custom_println, ends_with_blank_line};
 use clap::Parser;
-use serde_json;
 use std::{
-    cmp::max,
     fs,
     io::{self, Write},
+    process
 };
-use structs::{Config, PatternVS, Result, Settings};
+use structs::{Config, PatternVS};
 use walkdir::WalkDir;
 
 mod structs;
-mod utils;
 mod wsj;
+mod utils_rw;
+
 
 ///Program to search for patterns in files
 #[derive(Parser, Debug)]
@@ -40,60 +40,22 @@ struct Args {
 }
 
 fn main() {
+    let mut found_pattern = 0;
     let config = parse_args();
 
-    let settings_data =
-        fs::read_to_string(&config.settings).expect("Error reading settings file >> read");
-    let settings: Settings =
-        serde_json::from_str(&settings_data).expect("Error parsing settings file to struct");
-    let severity = &settings.patterns.severity;
-    let mut patterns: Vec<PatternVS> = Vec::new();
-    let mut vector_for_report_whit_all = Vec::new();
+    let settings = utils_rw::load_settings(&config.settings);
+    let patterns: Vec<PatternVS> = utils_rw::load_patterns(&settings);
+    let vector_for_report_whit_all = Vec::new();
 
-    // put all pattern blocks into one vector
-    patterns.extend(severity.h.iter().map(|p| PatternVS {
-        pattern: p.pattern.clone(),
-        comment: p.comment.clone(),
-        regex: p.regex,
-        severity: 1,
-    }));
-    patterns.extend(severity.m.iter().map(|p| PatternVS {
-        pattern: p.pattern.clone(),
-        comment: p.comment.clone(),
-        regex: p.regex,
-        severity: 2,
-    }));
-    patterns.extend(severity.l.iter().map(|p| PatternVS {
-        pattern: p.pattern.clone(),
-        comment: p.comment.clone(),
-        regex: p.regex,
-        severity: 3,
-    }));
 
     let ignore_list = &settings.ignore;
-    let project_path = if config.path == "j" {
+    let project_path = if config.path == "o" {
         &settings.project_path
     } else {
         &config.path
     };
     let color = settings.run_settings.color_output;
-
-    println!("\n+{:-<width$}+", "", width = 26 + project_path.len());
-    println!("Searching for patterns in {}", project_path);
-    println!("+{:-<width$}+\n", "", width = 26 + project_path.len());
     let mut appearance = 0;
-
-    if config.show {
-        let mut filenames: Vec<String> = Vec::new();
-        for entry in WalkDir::new(&project_path)
-            .into_iter()
-            .filter_map(|e| e.ok())
-        {
-            if entry.file_type().is_file() {
-                filenames.push(entry.path().display().to_string());
-            }
-        }
-    }
 
     for entry in WalkDir::new(&project_path) {
         let entry = entry.unwrap();
@@ -104,6 +66,10 @@ fn main() {
             continue;
         } else {
             if path.is_file() {
+                let mut line_number = 1;
+                let mut first_pattern = true;
+                let ends_wbl = utils_rw::ends_with_blank_line(&path_str);
+
                 let file = match fs::read(path) {
                     Ok(content) => {
                         let val = String::from_utf8_lossy(&content).to_string();
@@ -115,107 +81,59 @@ fn main() {
                 };
 
                 io::stdout().flush().unwrap();
-                let mut result = utils::find_matches(&config, &file, &patterns, color);
-                let max_length = patterns.iter().map(|p| p.pattern.len()).max().unwrap_or(0);
-                let max_vec = result
-                    .matches
-                    .iter()
-                    .map(|m| m.len())
-                    .max()
-                    .unwrap_or(0)
-                    .to_string()
-                    .len();
+                custom_print(color, "0;33;1", format_args!("\n\n{}", path.display()));
 
-                let max_above = max(12, max_vec) + max_length;
-
-                // print vector matches
-                if result.matches.iter().map(|m| m.len()).sum::<usize>() > 0 {
-                    custom_print(
-                        color,
-                        "0;37;0",
-                        format_args!(
-                            " |=| {:width$}",
-                            path.display(),
-                            width = max_length - (max_length * 2 / 3)
-                        ),
-                    );
-                    custom_println(
-                        color,
-                        "0;0;0",
-                        format_args!("\n\t| Patterns found: ... : lines"),
-                    );
-                    for (i, pattern) in patterns.iter().enumerate() {
-                        match result.matches.get(i) {
-                            Some(matches) => {
-                                if !matches.is_empty() {
-                                    vector_for_report_whit_all.push(vec![
-                                        path.display().to_string(),
-                                        matches[0][0].clone(),
-                                        matches[0][1].clone(),
-                                        pattern.pattern.clone(),
-                                        if result.high {
-                                            "high".to_string()
-                                        } else if result.mid {
-                                            "medium".to_string()
-                                        } else {
-                                            "low".to_string()
-                                        },
-                                        result.ends_with_blank_line.to_string()
-                                    ]);
-                                    custom_print (
-                                        color,
-                                        "0;34;1",
-                                        format_args! (
-                                            "\t| {:width$} : {}",
-                                            pattern.pattern,
-                                            matches[0].join(", "),
-                                            width = max_length
-                                        ),
-                                    );
-                                    appearance += result.matches[i].len();
-                                }
+                for line in file.lines(){
+                    if let Some(result) = utils_rw::find_matches(line, &patterns){
+                        if first_pattern {
+                            if result.severity_ == 1 {
+                                found_pattern += 1;
                             }
-                            None => {}
+                            custom_println(color, "0;31;1", 
+                            format_args!("\n> !!! Patterns found !!! <"));
+                            if settings.run_settings.show_patterns {
+                                custom_println(color, "0;31;1", 
+                                format_args!("| Pattern...{} [{}]", result.pattern_, result.severity_));
+                            }
+                            custom_println(color, "0;37;1", 
+                            format_args!("+ |{}| {}", &line_number, &line));
+                            first_pattern = false;
+                        } else {
+                            if settings.run_settings.show_patterns {
+                                custom_println(color, "0;31;1", 
+                                format_args!("| Pattern...{} [{}]",result.pattern_, result.severity_));
+                            }
+                            custom_println(color, "0;37;1", 
+                            format_args!("+ |{}| {}", &line_number, &line));
                         }
-                    }
-                    if result.high | result.mid {
-                        custom_println(color, "5;41;1", format_args!("\n[!!!] RISKS FOUND:"));
-                    }
-                    if result.high {
-                        custom_println(color, "0;31;1", format_args!("[ HIGH ] It seems like a highly privileged information has been left in the code base\n\t Change the way you implemented such data !"));
-                    }
-                    if result.mid {
-                        custom_println(color, "0;33;1", format_args!("[ MID ] Some data has been left in the code that mby should not be in it?\n\tConsider an alternative way to display such data or remove it"));
-                    }
-                    result.clear();
-                    if color {
-                        custom_println(
-                            color,
-                            "0;30;1",
-                            format_args!("\n[ {:=<width$} ]", "", width = max_above),
-                        );
-                    } else {
-                        custom_println(
-                            color,
-                            "0",
-                            format_args!("\n[ {:=<width$} ]", "", width = max_above),
-                        );
-                    }
-                } else {
-                    if settings.run_settings.display_ok_files {
-                        print!(
-                            " |=| {:width$}\x1b[0m",
-                            path.display(),
-                            width = max_length - (max_length * 2 / 3)
-                        );
-                        custom_print(
-                            color,
-                            "0;32;1",
-                            format_args!("{:s$}OK\n", "", s = max_above),
-                        );
+                        appearance += 1;
+                        line_number += 1;
+                    }else{
+                        line_number += 1;
+                        continue;
                     }
                 }
+                if first_pattern{
+                    custom_print(color, "0;32;1", format_args!("\t OK"));
+                    if ends_wbl {
+                        custom_print(color, "0;32;1", format_args!(" (ends with blank line)"));
+                    } else {
+                        custom_print(color, "0;31;1", format_args!(" (Does not end with blank line)"));
+                    }
+                } else {
+                    if ends_wbl{
+                        custom_println(color, "0;31;1", format_args!("\n(ends with blank line)"));
+                    } else {
+                        custom_println(color, "0;31;1", format_args!("\n(Does not end with blank line)"));
+                    }
+
+                }
             }
+        }
+    //     make so a sh script will fail if found_pattern > 0
+        if found_pattern > 0 {
+            custom_println(color, "0;31;1", format_args!("\n\nFound {} matches ... {}", appearance, utils_rw::att(&appearance)));
+            process::exit(1);
         }
     }
     custom_println(
@@ -229,7 +147,7 @@ fn main() {
         format_args!(
             "Found {} matches ... {}",
             appearance,
-            utils::att(&appearance)
+            utils_rw::att(&appearance)
         ),
     );
     custom_println(
@@ -239,7 +157,11 @@ fn main() {
     );
 
     // println!("{:?}", vector_for_report_whit_all);
-    wsj::init_report(color, settings.report_settings, vector_for_report_whit_all);
+    // TODO: need to implement the report
+    if settings.run_settings.write_report {
+        wsj::init_report(color, settings.report_settings, vector_for_report_whit_all);
+    }
+   
 
 }
 
