@@ -10,7 +10,7 @@ And finally, run the .exe with desired flags <br>
 If you wish to run this program automatically before commit, you can do it like so:<br>
 1. build the program ```cargo build --release```<br>
 2. run ```cargo install .``` (this will add safe_run.exe to path)<br>
-3. in the root of your project create a file named pre-commit (without extension)<br>
+3. in .\git\hooks create a file named pre-commit (without extension)<br>
 4. add the code from ```pre-commit-sample``` to .git/hooks/pre-commit<br>
 ! If it doesn't work, check that the ```pre-commit``` file has no extension<br>
 ! and has correct permissions (it should be executable)<br>
