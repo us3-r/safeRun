@@ -1,4 +1,27 @@
 {
+    "project_path": "path\\to\\project",
+    "run_settings": {
+        "color_output": true,
+        "display_ok_files": true,
+        "show_patterns": true,
+        "use_custom_severity_and_exp": false,
+        "check_code": false,
+        "write_report": false
+    },
+    "check_code_options": {
+        "comments": true,
+        "ends_with_blank_line": true
+    },
+    "report_settings": {
+        "report_path": "path\\to\\report",
+        "report_title": "Test-title",
+        "report_params": {
+            "type_": "txt", 
+            "exclude_": "none",
+            "caps_": false,
+            "filename_as_head": true
+        }
+    },
     "patterns": {
         "severity": {
             "h": [
@@ -110,6 +133,8 @@
         "release",
         "target",
         "patterns.txt",
-        "ignore.txt"
+        "ignore.txt",
+        "keys",
+        "tests\\keys"
     ]
 }

@@ -6,14 +6,18 @@ build the program using cargo
 And finally, run the .exe with desired flags <br>
 (You can also use `c argo run -- flags`)
 
-## SETUP
-(currently not working)<br>
-If you wish to run this program automatically before commit you can run setup.sh<br>
-This will add a pre-commit hook that will run the program before every commit.<br>
-NOTE: you must first build the program using cargo build and add it to path<br>
+### Use as a pre-commit hook
+If you wish to run this program automatically before commit, you can do it like so:<br>
+1. build the program ```cargo build --release```<br>
+2. run ```cargo install .``` (this will add safe_run.exe to path)<br>
+3. in the root of your project create a file named pre-commit (without extension)<br>
+4. add the code from ```pre-commit-sample``` to .git/hooks/pre-commit<br>
+! If it doesn't work, check that the ```pre-commit``` file has no extension<br>
+! and has correct permissions (it should be executable)<br>
+5. if it still doesn't work try ChatGpt 🤝
 
 ## PATTERNS block
-```
+```json
 {
    ... 
    "patterns" : {
@@ -25,10 +29,10 @@ NOTE: you must first build the program using cargo build and add it to path<br>
    } 
 }
 ```
-<br> is used to store patterns you want to search for.<br>
+<br> it is used to store patterns you want to search for.<br>
 Into each severity list you add a pattern block which looks like so:<br>
 
-```
+```json
 {
     "pattern": "[A-Za-z0-9]{128}" | "some string", 
     "comment": "check for SHA-512 hash", 
@@ -43,14 +47,14 @@ Where:<br>
 
 ## IGNORE block
 
-```
+```json
 {
    ... 
    "ignore" : [] 
 }
 ``` 
-<br> is used to store files or paths you do not want to search through.<br>
-You can add files or directories to the ignore block in the settings.json file as if you would to .gitignore<br>
+<br> it is used to store files or paths you do not want to search through.<br>
+You can add files or directories to the ignored block in the settings.json file as if you would to .gitignore<br>
 
 
 ## Available flags:<br>
@@ -64,17 +68,28 @@ note: `-f` and `-s` cannot be used together (if both are used the program will i
 ## Examples <br>
 Lets have a dir with our project be: C:\user\project<br>
 ### Default use <br>
-`cargo run -- -p o -s settings.json`<br>
-(assuming we have defined the path for our project in settings.json)<br>
--- This will show us which files contain the patterns and on what lines.--<br><br>
+`cargo run -- -p C:\user\project -s settings.json`<br>
+—This will show us which files contain the patterns and on what lines.<br>
+<br>_OPTIONAL_:<br>
+If the path is already in settings.json, you can run the program with the following parameters:<br>
+`cargo run -- -p j -s settings .json`<br>
+```json
+{
+    "project_path": "Path\\to\\project",
+}
+```
+
 
 ### -f <br>
 `cargo run -- -p C:\user\project -s settings.json -f`<br>
--- This will show us which files contain the patterns.--<br><br>
+—This will show us which files contain the patterns.--<br><br>
 
 ### -l <br>
 `cargo run -- -p C:\user\project -s settings.json -l`<br>
--- This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
+—This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
+
+## REPORTs
+TODO :)
 
 
 # 

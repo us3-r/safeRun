@@ -1,0 +1,11 @@
+#!/bin/sh
+exec 1>&2
+echo "Running safe_run command..."
+echo "Current directory: $(pwd)"
+
+safe_run -p o -s settings.json
+if [ $? -ne 0 ]; then
+        echo "Error, commit aborted"
+        exit 1
+fi
+exit 0
