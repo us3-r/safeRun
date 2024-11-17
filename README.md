@@ -62,9 +62,10 @@ note: `-f` and `-s` cannot be used together (if both are used the program will i
 `-h` or `--help` : show help message <br>
 
 ## Examples <br>
-Let's have a file ignore.txt, patterns.txt, and a dir with our project: C:\user\project<br>
+Lets have a dir with our project be: C:\user\project<br>
 ### Default use <br>
-`cargo run -- -p C:\user\project -s settings.json`<br>
+`cargo run -- -p o -s settings.json`<br>
+(assuming we have defined the path for our project in settings.json)<br>
 -- This will show us which files contain the patterns and on what lines.--<br><br>
 
 ### -f <br>
