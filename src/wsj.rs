@@ -15,16 +15,11 @@ settings.json :
     },
 
 */
-
-
 use crate::structs;
 use std::fs::File;
 use std::io::Write;
-<<<<<<< HEAD
-use crate::utils_rw::custom_println;
-=======
 use crate::utils::custom_println;
->>>>>>> origin/settings
+use serde_json::json;
 
 // mby should be write report? we inint and also write all the data so no need for 2 functions
 
@@ -34,21 +29,7 @@ use crate::utils::custom_println;
 /// #### `paracolor`: bool - if true, colored output is enabled (for terminal)
 /// #### `input_params`: structs::ReportSettings - settings for the report
 /// #### `data`: Vec<Vec<String>> - data to be written in the report
-<<<<<<< HEAD
-/// #### `data` should look something like this:
-///```
-/// [
-///    "<filename>",       (ind0
-///    "<line number>",    (ind1
-///    "<line content>",   (ind2
-///    "<pattern>",        (ind3
-///    "<severity>"        (ind4
-///    "<blank_line>"      (ind5
-///]
-/// ```
-=======
->>>>>>> origin/settings
-/// 
+///
 pub fn init_report(color: bool, input_params: structs::ReportSettings, data: Vec<Vec<String>>) {
     custom_println(color, "0;33;1", format_args!("Creating report ..."));
 
@@ -57,14 +38,14 @@ pub fn init_report(color: bool, input_params: structs::ReportSettings, data: Vec
     let type_ = input_params.report_params.type_;
     let exclude_ = input_params.report_params.exclude_;
     let caps_ = input_params.report_params.caps_;
-    
+
     custom_println(color, "0;33;1", format_args!(
         "| Report will be made with the following data:\n+ Path  :\t{}\n+ Title :\t{}\n+ Type  :\t{}",
         path_, title_, type_
     ));
-    
-    
-    
+
+
+
     let file_path_and_name = format!("{}\\{}.{}", path_, title_, type_);
 
     let mut file = File::create(&file_path_and_name).unwrap();
@@ -85,6 +66,7 @@ pub fn init_report(color: bool, input_params: structs::ReportSettings, data: Vec
             }
         }
         "json" => {
+            // fix so that json file is written with correct format
             let json = "{";
             file.write_all(json.as_bytes()).unwrap();
             for data_ in data {
@@ -110,7 +92,6 @@ data should look something like this:
     "<line content>",   2
     "<pattern>",        3
     "<severity>"        4
-    "<blank_line>"      5
 ]
 
 */
@@ -121,12 +102,12 @@ data should look something like this:
 /// #### `data`: Vec<String> - the data to be written
 /// #### `exc`: String - what to exclude from the report
 /// #### `caps`: bool - if true, the report will be written in caps
-/// 
+///
 fn write_as_report_txt(file: &mut File, data: Vec<String>, exc: String, caps: bool) {
     let context: String;
-    match exc.as_str() {                    
+    match exc.as_str() {
         "none" => {
-            context = format!("In file: {} at line {}; ctx--> {}; LVL: {} -pattern-> {};\nEnds with blank? {}\n", data[0], data[1], data[2], data[4], data[3], data[5]);
+            context = format!("In file: {} at line {}; ctx--> {}; LVL: {} -pattern-> {}\n", data[0], data[1], data[2], data[4], data[3]);
         }
         "line" => {
             context = format!("In file: {}; LVL: {} -pattern-> {}\n", data[0], data[4], data[3]);
@@ -140,7 +121,7 @@ fn write_as_report_txt(file: &mut File, data: Vec<String>, exc: String, caps: bo
         }
         _ => {
             context = format!("Error in report settings");
-        }       
+        }
     }
     if caps {
         file.write_all(context.to_uppercase().as_bytes()).unwrap();
@@ -156,12 +137,12 @@ fn write_as_report_txt(file: &mut File, data: Vec<String>, exc: String, caps: bo
 /// #### `data`: Vec<String> - the data to be written
 /// #### `exc`: String - what to exclude from the report
 /// #### `caps`: bool - if true, the report will be written in caps
-/// 
+///
 fn write_as_report_md(file: &mut File, data: Vec<String>, exc: String, caps: bool){
     let context: String;
     let split_name:Vec<&str> = data[0].split(".").collect();
 
-    match exc.as_str() {                    
+    match exc.as_str() {
         "none" => {
             context = format!("\nIn file: ***{}***\n<br>\nLine: **{}**\n<br>\nPattern: **{}**\n<br>\nLVL: **{}**\n<br>\nLine context:\n```{}\n {}\n```\n<br>\n", data[0], data[1], data[3], data[4].to_uppercase(), split_name[1], data[2]);
         }
@@ -176,7 +157,7 @@ fn write_as_report_md(file: &mut File, data: Vec<String>, exc: String, caps: boo
         }
         _ => {
             context = format!("Error in report settings");
-        }       
+        }
     }
     if caps {
         file.write_all(context.to_uppercase().as_bytes()).unwrap();
@@ -198,12 +179,11 @@ fn write_as_report_html(file: &mut File, data: Vec<String>, exc: String, caps: b
                 LVL: <strong>{}</strong><br>\n\
                 Line context:<br>\n\
                 <pre style=\"background-color: #f5f5f5; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace;\">\n\
-                <code>{}\n {}\n</code></pre><br>\n</p>",
+                <code>{}\n</code></pre><br>\n</p>",
                 data[0], // File name
                 data[1], // Line number
                 data[3], // Pattern
                 data[4].to_uppercase(), // Severity level (uppercased)
-                split_name[1], // Some context name
                 data[2] // Line context
             );
         }
@@ -257,7 +237,7 @@ fn write_as_report_html(file: &mut File, data: Vec<String>, exc: String, caps: b
     } else{
         file.write_all(context.as_bytes()).unwrap();
     }
-    
+
 }
 
 
@@ -267,59 +247,71 @@ fn write_as_report_html(file: &mut File, data: Vec<String>, exc: String, caps: b
 /// #### `data`: Vec<String> - the data to be written
 /// #### `exc`: String - what to exclude from the report
 /// #### `caps`: bool - if true, the report will be written in caps
-/// 
-fn write_as_report_json(file: &mut File, data: Vec<String>, exc: String, caps: bool){
-    // only a place holder for now, can be rewritten to be more efficient and to clean <context string> before adding it to the file (strip of ", {,...)
-    /*
-        {    
-            {
-                "file": "<filename>",
-                "line": "<line number>",
-                "pattern": "<pattern>",
-                "severity": "<severity>",
-                "context": "<line content>"
-            }
-        }
-    */
-
-    let context: String;
-
-    
+///
+fn write_as_report_json(file: &mut File, data: Vec<String>, exc: String, caps: bool) {
+    // Initialize 'context' with a default value
+    let mut context = String::new();
 
     match exc.as_str() {
         "none" => {
-            context = format!(
-                "\t{{\n\t\t\"file\":\"{}\",\n\t\t\"line\":\"{}\",\n\t\t\"pattern\":\"{}\",\n\t\t\"severity\":\"{}\",\n\t\t\"context\":\"{}\"\n\t}},\n",
-                data[0], data[1], data[3], data[4].to_uppercase(), data[2]
-            );           
+            let context_json = json!({
+                "file": data[0],
+                "line": data[1],
+                "pattern": data[3],
+                "severity": data[4].to_uppercase(),
+                "context": data[2],
+            });
+
+            // Serialize the JSON object to a pretty-printed string
+            context = serde_json::to_string_pretty(&context_json)
+                .expect("Failed to serialize JSON");
         }
         "line" => {
-            context = format!(
-                "\t{{\n\t\t\"file\":\"{}\",\n\t\t\"pattern\":\"{}\",\n\t\t\"severity\":\"{}\"\n\t}},\n",
-                data[0], data[3], data[4].to_uppercase()
-            );             
+            let context_json = json!({
+                "file": data[0],
+                "pattern": data[3],
+                "severity": data[4].to_uppercase(),
+            });
+
+            // Serialize the JSON object to a pretty-printed string
+            context = serde_json::to_string_pretty(&context_json)
+                .expect("Failed to serialize JSON");
         }
         "pattern" => {
-            context = format!(
-                "\t{{\n\t\t\"file\":\"{}\",\n\t\t\"line\":\"{}\",\n\t\t\"severity\":\"{}\",\n\t\t\"context\":\"{}\"\n\t}},\n",
-                data[0], data[1], data[4].to_uppercase(), data[2]
-            );             
+            let context_json = json!({
+                "file": data[0],
+                "line": data[1],
+                "severity": data[4].to_uppercase(),
+                "context": data[2],
+            });
+
+            // Serialize the JSON object to a pretty-printed string
+            context = serde_json::to_string_pretty(&context_json)
+                .expect("Failed to serialize JSON");
         }
         "severity" => {
-            context = format!(
-                "\t{{\n\t\t\"file\":\"{}\",\n\t\t\"line\":\"{}\",\n\t\t\"pattern\":\"{}\",\n\t\t\"context\":\"{}\"\n\t}},\n",
-                data[0], data[1], data[3], data[2]
-            );             
-        }
+            let context_json = json!({
+                "file": data[0],
+                "line": data[1],
+                "pattern": data[3],
+                "context": data[2],
+            });
 
+            // Serialize the JSON object to a pretty-printed string
+            context = serde_json::to_string_pretty(&context_json)
+                .expect("Failed to serialize JSON");
+        }
         _ => {
             context = String::from("\t{\"error\":\"error\"},\n");
         }
     }
-    if caps {
-        file.write_all(context.to_uppercase().as_bytes()).unwrap();
-    } else{
-        file.write_all(context.as_bytes()).unwrap();
-    }
 
+    // Write 'context' to the file, applying uppercase transformation if 'caps' is true
+    if caps {
+        file.write_all(context.to_uppercase().as_bytes())
+            .expect("Failed to write to file");
+    } else {
+        file.write_all(context.as_bytes())
+            .expect("Failed to write to file");
+    }
 }

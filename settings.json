@@ -1,16 +1,9 @@
 {
-<<<<<<< HEAD
-    "project_path": "path\\to\\project",
-    "run_settings": {
-        "color_output": true,
-        "display_ok_files": true,
-        "show_patterns": true,
-=======
     "project_path": "C:\\Users\\gfhyt\\PycharmProjects\\pythonProject",
     "run_settings": {
         "color_output": true,
         "display_ok_files": true,
->>>>>>> origin/settings
+        "show_patterns": true,
         "use_custom_severity_and_exp": false,
         "check_code": false,
         "write_report": false
@@ -20,14 +13,10 @@
         "ends_with_blank_line": true
     },
     "report_settings": {
-<<<<<<< HEAD
-        "report_path": "path\\to\\report",
-=======
-        "report_path": "C:\\Users\\gfhyt\\CLionProjects\\rust\\safeRun",
->>>>>>> origin/settings
+        "report_path": "C:\\Users\\gfhyt\\CLionProjects\\rust\\safeRun\\reports",
         "report_title": "Test-title",
         "report_params": {
-            "type_": "txt", 
+            "type_": "txt",
             "exclude_": "none",
             "caps_": false,
             "filename_as_head": true
