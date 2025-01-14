@@ -1,5 +1,8 @@
 - added report generation
+<<<<<<< HEAD
 - rewrote the main function and helper functions to be more modular, a small loss in performance
+=======
+>>>>>>> origin/settings
 TODO: expend settings.json to include more options
 ----------------------------------------------------------------------------------------------------------------------------
 possible future upgrades:

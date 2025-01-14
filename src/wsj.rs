@@ -20,7 +20,11 @@ settings.json :
 use crate::structs;
 use std::fs::File;
 use std::io::Write;
+<<<<<<< HEAD
 use crate::utils_rw::custom_println;
+=======
+use crate::utils::custom_println;
+>>>>>>> origin/settings
 
 // mby should be write report? we inint and also write all the data so no need for 2 functions
 
@@ -30,6 +34,7 @@ use crate::utils_rw::custom_println;
 /// #### `paracolor`: bool - if true, colored output is enabled (for terminal)
 /// #### `input_params`: structs::ReportSettings - settings for the report
 /// #### `data`: Vec<Vec<String>> - data to be written in the report
+<<<<<<< HEAD
 /// #### `data` should look something like this:
 ///```
 /// [
@@ -41,6 +46,8 @@ use crate::utils_rw::custom_println;
 ///    "<blank_line>"      (ind5
 ///]
 /// ```
+=======
+>>>>>>> origin/settings
 /// 
 pub fn init_report(color: bool, input_params: structs::ReportSettings, data: Vec<Vec<String>>) {
     custom_println(color, "0;33;1", format_args!("Creating report ..."));

@@ -3,4 +3,8 @@ testp.txt
 Test-title.txt
 Test-title.md
 Test-title.html
+<<<<<<< HEAD
 Test-title.json
+=======
+Test-title.json
+>>>>>>> origin/settings
