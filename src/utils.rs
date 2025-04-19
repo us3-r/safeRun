@@ -1,9 +1,6 @@
 use std::fmt::Arguments;
 use regex::Regex;
 use crate::{Config, PatternVS};
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
 
 /// Function to find matches in a file
 /// # Arguments
@@ -186,10 +183,6 @@ fn ends_with_blank_line(file: &str) -> bool {
     // println!("{:?}", file.lines().last().unwrap().trim());
     if let Some(last_line) = file.lines().last() {
         return last_line.trim().is_empty();
-    }
-    println!("{:?}", file.lines().last().unwrap().trim());
-    if file.lines().last().unwrap().trim() == "" {
-        return true;
     }
     false
 }
