@@ -6,7 +6,7 @@ build the program using cargo
 And finally, run the .exe with desired flags <br>
 (You can also use `c argo run -- flags`)
 
-<<<<<<< HEAD
+
 ### Use as a pre-commit hook
 If you wish to run this program automatically before commit, you can do it like so:<br>
 1. build the program ```cargo build --release```<br>
@@ -16,18 +16,17 @@ If you wish to run this program automatically before commit, you can do it like 
 ! If it doesn't work, check that the ```pre-commit``` file has no extension<br>
 ! and has correct permissions (it should be executable)<br>
 5. if it still doesn't work try ChatGpt 🤝
-=======
+
 ## SETUP
 (currently not working)<br>
 If you wish to run this program automatically before commit, you can run setup.sh<br>
 This will add a pre-commit hook that will run the program before every commit.<br>
 NOTE: you must first build the program using cargo build and add it to path<br>
->>>>>>> origin/settings
+
 
 ## PATTERNS block
 ```json
 {
-   ... 
    "patterns" : {
       "severity" : {
          "h":[] ,
@@ -42,9 +41,9 @@ Into each severity list you add a pattern block which looks like so:<br>
 
 ```json
 {
-    "pattern": "[A-Za-z0-9]{128}" | "some string", 
+    "pattern": "[A-Za-z0-9]{128}" , 
     "comment": "check for SHA-512 hash", 
-    "regex": true | false
+    "regex": "true"
 }
 ```
 
@@ -57,7 +56,6 @@ Where:<br>
 
 ```json
 {
-   ... 
    "ignore" : [] 
 }
 ``` 
@@ -95,13 +93,10 @@ If the path is already in settings.json, you can run the program with the follow
 ### -l <br>
 `cargo run -- -p C:\user\project -s settings.json -l`<br>
 —This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
-<<<<<<< HEAD
+
 
 ## REPORTs
 TODO :)
-=======
->>>>>>> origin/settings
-
 
 # 
 Possible patterns to include in patterns.txt:<br>
