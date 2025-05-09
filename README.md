@@ -92,7 +92,7 @@ This will show which files contain the patterns, on what lines, and display thos
 ## REPORTS
 TODO: currently under development<br>
 
-# _______________
+#
 Possible patterns to include in patterns.txt:<br>
 - API keys: `$[A-Za-z0-9]{32}`<br>
 - IP addresses: `$.*((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}`<br>
