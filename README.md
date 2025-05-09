@@ -1,12 +1,17 @@
 # safeRun
-<br>safeRun is a command-line program that goes through the given directory and checks files if they contain any sensitive data.
-<br>How to use:<br>
-build the program using cargo
-`cargo build`<br>
-And finally, run the .exe with desired flags <br>
-(You can also use `c argo run -- flags`)
 
-<<<<<<< HEAD
+safeRun is a command-line program that scans a given directory for sensitive data patterns in files.
+
+## How to Use
+
+1. Build the program using Cargo:
+   ```bash
+   cargo build
+   ```
+And finally, run the .exe with desired flags <br>
+(You can also use `cargo run -- flags`)
+
+
 ### Use as a pre-commit hook
 If you wish to run this program automatically before commit, you can do it like so:<br>
 1. build the program ```cargo build --release```<br>
@@ -16,25 +21,24 @@ If you wish to run this program automatically before commit, you can do it like 
 ! If it doesn't work, check that the ```pre-commit``` file has no extension<br>
 ! and has correct permissions (it should be executable)<br>
 5. if it still doesn't work try ChatGpt 🤝
-=======
+
 ## SETUP
 (currently not working)<br>
 If you wish to run this program automatically before commit, you can run setup.sh<br>
 This will add a pre-commit hook that will run the program before every commit.<br>
 NOTE: you must first build the program using cargo build and add it to path<br>
->>>>>>> origin/settings
+
 
 ## PATTERNS block
 ```json
 {
-   ... 
-   "patterns" : {
-      "severity" : {
-         "h":[] ,
-         "m":[] ,
-         "l":[]
+   "patterns": {
+      "severity": {
+         "h": [],
+         "m": [],
+         "l": []
       }
-   } 
+   }
 }
 ```
 <br> it is used to store patterns you want to search for.<br>
@@ -42,9 +46,9 @@ Into each severity list you add a pattern block which looks like so:<br>
 
 ```json
 {
-    "pattern": "[A-Za-z0-9]{128}" | "some string", 
+    "pattern": "[A-Za-z0-9]{128}" , 
     "comment": "check for SHA-512 hash", 
-    "regex": true | false
+    "regex": "true"
 }
 ```
 
@@ -57,8 +61,7 @@ Where:<br>
 
 ```json
 {
-   ... 
-   "ignore" : [] 
+   "ignore": []
 }
 ``` 
 <br> it is used to store files or paths you do not want to search through.<br>
@@ -75,41 +78,26 @@ note: `-f` and `-s` cannot be used together (if both are used the program will i
 
 ## Examples <br>
 Lets have a dir with our project be: C:\user\project<br>
-### Default use <br>
+#### Default use <br>
 `cargo run -- -p C:\user\project -s settings.json`<br>
-—This will show us which files contain the patterns and on what lines.<br>
-<br>_OPTIONAL_:<br>
-If the path is already in settings.json, you can run the program with the following parameters:<br>
-`cargo run -- -p j -s settings .json`<br>
-```json
-{
-    "project_path": "Path\\to\\project",
-}
-```
-
-
-### -f <br>
+This will show which files contains the patterns and on what lines<br>
+#### Fast Search <br>
 `cargo run -- -p C:\user\project -s settings.json -f`<br>
-—This will show us which files contain the patterns.--<br><br>
-
-### -l <br>
+This will show which files contain the patterns but only the first match in each file.<br>
+#### Show lines <br>
 `cargo run -- -p C:\user\project -s settings.json -l`<br>
-—This will show us which files contain the patterns and on what lines AND it will also display those lines.--<br><br>
-<<<<<<< HEAD
-
-## REPORTs
-TODO :)
-=======
->>>>>>> origin/settings
+This will show which files contain the patterns, on what lines, and display those lines. <br>
 
 
-# 
+## REPORTS
+TODO: currently under development<br>
+
+# _______________
 Possible patterns to include in patterns.txt:<br>
 - API keys: `$[A-Za-z0-9]{32}`<br>
 - IP addresses: `$.*((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}`<br>
 - Auth tokens: `$[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_=]+\.?[a-zA-Z0-9-_=]*$`<br>
 - Email addresses: `$[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`<br>
-<br>Some additional patterns:<br>
 - URLs: `$https?://[a-zA-Z0-9-_.]+`<br>
 - Phone numbers: `$\+?[0-9]{1,3}[\s-]?[0-9]{3}[\s-]?[0-9]{3}[\s-]?[0-9]{3}`<br>
 - Credit card numbers: `$[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}`<br>
