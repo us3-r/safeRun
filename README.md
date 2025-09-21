@@ -48,7 +48,7 @@ Into each severity list you add a pattern block which looks like so:<br>
 {
     "pattern": "[A-Za-z0-9]{128}" , 
     "comment": "check for SHA-512 hash", 
-    "regex": "true"
+    "regex": true
 }
 ```
 
@@ -81,6 +81,20 @@ Lets have a dir with our project be: C:\user\project<br>
 #### Default use <br>
 `cargo run -- -p C:\user\project -s settings.json`<br>
 This will show which files contains the patterns and on what lines<br>
+<br>
+#### Using project_path from settings.json <br>
+You can store a default project path in your settings file and reference it by passing `-p o` (letter o). When `-p o` is used, the program takes the path from `project_path` in `settings.json`.
+
+Example settings snippet:
+```json
+{
+  "project_path": "C:\\Path\\to\\project",
+  "ignore": [],
+  "patterns": { "severity": { "h": [], "m": [], "l": [] } }
+}
+```
+Run:
+`cargo run -- -p o -s settings.json`
 #### Fast Search <br>
 `cargo run -- -p C:\user\project -s settings.json -f`<br>
 This will show which files contain the patterns but only the first match in each file.<br>
