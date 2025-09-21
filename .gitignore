@@ -4,3 +4,6 @@ Test-title.txt
 Test-title.md
 Test-title.html
 Test-title.json
+.idea/
+.vscode/
+.dist/

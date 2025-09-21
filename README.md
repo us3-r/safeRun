@@ -14,13 +14,13 @@ And finally, run the .exe with desired flags <br>
 
 ### Use as a pre-commit hook
 If you wish to run this program automatically before commit, you can do it like so:<br>
-1. build the program ```cargo build --release```<br>
-2. run ```cargo install .``` (this will add safe_run.exe to path)<br>
-3. in .\git\hooks create a file named pre-commit (without extension)<br>
-4. add the code from ```pre-commit-sample``` to .git/hooks/pre-commit<br>
+1. Build the program ```cargo build --release```<br>
+2. Run ```cargo install .``` (this will add safe_run.exe to PATH)<br>
+3. In .\git\hooks create a file named pre-commit (without extension)<br>
+4. Add the code from ```pre-commit-sample``` to .git/hooks/pre-commit<br>
 ! If it doesn't work, check that the ```pre-commit``` file has no extension<br>
 ! and has correct permissions (it should be executable)<br>
-5. if it still doesn't work try ChatGpt 🤝
+5. If it still doesn't work, try ChatGPT 🤝
 
 ## SETUP
 (currently not working)<br>
@@ -41,7 +41,7 @@ NOTE: you must first build the program using cargo build and add it to path<br>
    }
 }
 ```
-<br> it is used to store patterns you want to search for.<br>
+<br> It is used to store patterns you want to search for.<br>
 Into each severity list you add a pattern block which looks like so:<br>
 
 ```json
@@ -65,22 +65,22 @@ Where:<br>
 }
 ``` 
 <br> it is used to store files or paths you do not want to search through.<br>
-You can add files or directories to the ignored block in the settings.json file as if you would to .gitignore<br>
+You can add files or directories to the ignored block in the settings.json file as you would in .gitignore.<br>
 
 
 ## Available flags:<br>
 `-p` or `--path` : specify the path to a directory.  !required<br>
 `-s` or `--settings`: path to settings.json <br>
-`-f` or `--fast` : flag::if used the program will only find the first match within a file. <br>
-`-l` or `--show-lines` ; flag::if used the program will display lines in which the pattern occurs <br>
-note: `-f` and `-s` cannot be used together (if both are used the program will ignore `-s`)<br>
+`-f` or `--fast` : flag: if used, the program will only find the first match within a file. <br>
+`-l` or `--show-lines` : flag: if used, the program will display lines in which the pattern occurs <br>
+Note: `-f` and `-s` cannot be used together (if both are used the program will ignore `-s`)<br>
 `-h` or `--help` : show help message <br>
 
 ## Examples <br>
-Lets have a dir with our project be: C:\user\project<br>
+Let's have a dir with our project be: C:\user\project<br>
 #### Default use <br>
 `cargo run -- -p C:\user\project -s settings.json`<br>
-This will show which files contains the patterns and on what lines<br>
+This will show which files contain the patterns and on what lines<br>
 <br>
 #### Using project_path from settings.json <br>
 You can store a default project path in your settings file and reference it by passing `-p o` (letter o). When `-p o` is used, the program takes the path from `project_path` in `settings.json`.
